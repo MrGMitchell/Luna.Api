@@ -47,10 +47,6 @@
               "target": "Package",
               "version": "[2.1.35, )"
             },
-            "Microsoft.Azure.Cosmos": {
-              "target": "Package",
-              "version": "[3.43.1, )"
-            },
             "Microsoft.Data.SqlClient": {
               "target": "Package",
               "version": "[5.2.2, )"

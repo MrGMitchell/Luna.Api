@@ -9,13 +9,11 @@ namespace Luna.Api.Controllers;
 public class UserCardController : ControllerBase
 {
     private readonly ILogger<UserCardController> _logger;
-    private readonly ICosmosService _cosmosdb;
     private readonly ISqlServerService _sql;
 
-    public UserCardController(ILogger<UserCardController> logger, ICosmosService cosmosdb, ISqlServerService sql)
+    public UserCardController(ILogger<UserCardController> logger, ISqlServerService sql)
     {
         _logger = logger;
-        _cosmosdb = cosmosdb;
         _sql = sql;
     }
 
