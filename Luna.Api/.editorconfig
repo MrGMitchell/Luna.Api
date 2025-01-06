@@ -1,0 +1,7 @@
+[*.cs]
+
+# IDE0320: Make anonymous function static
+csharp_prefer_static_anonymous_function = true
+
+# CS8604: Possible null reference argument.
+dotnet_diagnostic.CS8604.severity = silent

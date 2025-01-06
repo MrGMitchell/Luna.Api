@@ -9,17 +9,17 @@ namespace Luna.Api.Controllers;
 public class UserCardController : ControllerBase
 {
     private readonly ILogger<UserCardController> _logger;
-    private readonly ISqlServerService _sql;
+    private readonly ICosmosDbService _cosmosDb;
 
-    public UserCardController(ILogger<UserCardController> logger, ISqlServerService sql)
+    public UserCardController(ILogger<UserCardController> logger, ICosmosDbService cosmosDb)
     {
         _logger = logger;
-        _sql = sql;
+        _cosmosDb = cosmosDb;
     }
 
     [HttpGet(Name = "GetUserCards")]
-    public IEnumerable<UserCard> Get()
+    public async Task<IEnumerable<UserCard>> Get()
     {
-        return _sql.GetUserCards();
+        return await _cosmosDb.GetUserCardsAsync();
     }
 }

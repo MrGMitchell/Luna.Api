@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\Luna.Api.csproj": {}
+    "C:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\Luna.Api.csproj": {}
   },
   "projects": {
-    "c:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\Luna.Api.csproj": {
+    "C:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\Luna.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\Luna.Api.csproj",
+        "projectUniqueName": "C:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\Luna.Api.csproj",
         "projectName": "Luna.Api",
-        "projectPath": "c:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\Luna.Api.csproj",
+        "projectPath": "C:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\Luna.Api.csproj",
         "packagesPath": "C:\\Users\\gmitc\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\obj\\",
+        "outputPath": "C:\\Users\\gmitc\\OneDrive\\Desktop\\GitHub\\Luna.Api\\Luna.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\gmitc\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -43,13 +43,29 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Azure.Identity": {
+              "target": "Package",
+              "version": "[1.13.1, )"
+            },
             "Dapper": {
               "target": "Package",
               "version": "[2.1.35, )"
             },
+            "Microsoft.Azure.Cosmos": {
+              "target": "Package",
+              "version": "[3.46.0, )"
+            },
             "Microsoft.Data.SqlClient": {
               "target": "Package",
               "version": "[5.2.2, )"
+            },
+            "Microsoft.Extensions.Azure": {
+              "target": "Package",
+              "version": "[1.9.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",

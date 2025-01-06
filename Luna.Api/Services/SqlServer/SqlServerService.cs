@@ -8,18 +8,18 @@ public class SqlServerService : ISqlServerService
 {
     private readonly IConfiguration _config;
 
-    public SqlServerService(IConfiguration config){
+    public SqlServerService(IConfiguration config)
+    {
         _config = config;
     }
 
     public IEnumerable<UserCard> GetUserCards()
     {
-        List<UserCard> users = new List<UserCard>();
+        List<UserCard> users = new();
 
         using (var connection = new SqlConnection(_config.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")))
         {
             var sql = "SELECT * FROM [UserCard]";
-
             users = connection.Query<UserCard>(sql).ToList();
         }
 
