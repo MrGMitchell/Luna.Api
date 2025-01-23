@@ -8,7 +8,11 @@ public class CosmosDbService : ICosmosDbService
 {
     public async Task<IEnumerable<UserCard>> GetUserCardsAsync()
     {
-        var cards = new List<UserCard>();
+        var userCards = new List<UserCard>();
+        var currMonth = DateTime.Now.ToString("MMMM");
+        var currYear = DateTime.Now.Year.ToString();
+        var startDate = DateOnly.Parse($"{currMonth} 1, {currYear}");
+        var endDate = startDate.AddMonths(1).AddDays(-1);
 
         // Credential class for testing on a local machine or Azure services
         TokenCredential credential = new DefaultAzureCredential();
@@ -19,7 +23,7 @@ public class CosmosDbService : ICosmosDbService
         Container container = client.GetContainer("Luna", "SpendingPlans");
 
         using FeedIterator<Plan> planfeed = container.GetItemQueryIterator<Plan>(
-            queryText: $"SELECT * FROM SpendingPlans p WHERE p.Month = '{DateTime.Now.ToString("MMMM")}' AND p.Year = '{DateTime.Now.Year}'"
+            queryText: $"SELECT * FROM SpendingPlans p WHERE p.Month = '{currMonth}' AND p.Year = '{currYear}'"
         );
 
         // Iterate query result pages
@@ -32,7 +36,7 @@ public class CosmosDbService : ICosmosDbService
             plan = response.First<Plan>();
 
             using FeedIterator<Plan> feed = container.GetItemQueryIterator<Plan>(
-                queryText: $"SELECT * FROM SpendingPlans p WHERE p.PlanId = '{plan.PlanId}' AND p.Type IN ('income','expense')"
+                queryText: $"SELECT * FROM SpendingPlans p WHERE p.PlanId = '{plan.PlanId}' AND p.Type IN ('income','expense', 'balance')"
             );
 
             // Iterate query result pages
@@ -40,31 +44,31 @@ public class CosmosDbService : ICosmosDbService
             {
                 FeedResponse<Plan> items = await feed.ReadNextAsync();
 
-                var userCards = items
+                userCards = [.. items
                 .GroupBy(g => new
                     {
                         g.User
                     })
                 .Select(uc => new UserCard {
+                    PlanId = plan.PlanId,
                     Name = uc.Key.User,
-                    TotalIncome = uc.Where(t => t.Type == "income").Sum(i => int.Parse(i.Amount)).ToString(),
-                    ExpensesPaid = uc.Where(t => t.Type == "expense" && t.ExpenseStatus).Sum(i => int.Parse(i.Amount)).ToString(),
-                    ExpensesUnpaid = uc.Where(t => t.Type == "expense" && !t.ExpenseStatus).Sum(i => int.Parse(i.Amount)).ToString(),
-                });
+                    StartDate = startDate.ToString(),
+                    EndDate = endDate.ToString(),
+                    TotalIncome = uc.Where(t => t.Type == "income").Sum(a => int.Parse(a.Amount)).ToString(),
+                    ExpensesPaid = uc.Where(t => t.Type == "expense" && t.ExpenseStatus).Sum(a => int.Parse(a.Amount)).ToString(),
+                    ExpensesUnpaid = uc.Where(t => t.Type == "expense" && !t.ExpenseStatus).Sum(a => int.Parse(a.Amount)).ToString(),
+                    CurrentBalance = uc.Where(t => t.Type == "balance").Sum(a => int.Parse(a.Amount)).ToString(),
+                    Incomes = [.. uc.Where(t => t.Type == "income")],
+                    Expenses = [.. uc.Where(t => t.Type == "expense")]
+                })];
 
-                foreach(UserCard item in userCards){
-                    var card = new UserCard {
-                        PlanId = plan.PlanId,
-                        Name = item.Name,
-                        TotalIncome = item.TotalIncome,
-                        ExpensesPaid = item.ExpensesPaid,
-                        ExpensesUnpaid = item.ExpensesUnpaid
-                    };
-                    cards.Add(card);
+                foreach(UserCard card in userCards){                    
+                     card.EndingBalance = (int.Parse(card.CurrentBalance) - int.Parse(card.ExpensesUnpaid)).ToString();
+                     card.Surplus = (int.Parse(card.TotalIncome) - (int.Parse(card.ExpensesPaid) + int.Parse(card.ExpensesUnpaid))).ToString();
                 }
             }
         }
 
-        return cards;
+        return userCards;
     }
 }

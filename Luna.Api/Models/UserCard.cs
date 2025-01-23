@@ -14,4 +14,6 @@ public class UserCard
     public string? ExpensesUnpaid { get; set; }
     public string? Surplus { get; set; }
     public string? EndingBalance { get; set; }
+    public List<Plan>? Incomes { get; set; }
+    public List<Plan>? Expenses { get; set; }
 }
