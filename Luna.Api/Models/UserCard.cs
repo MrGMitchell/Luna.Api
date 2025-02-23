@@ -3,17 +3,17 @@ namespace Luna.Api.Models;
 public class UserCard
 {
     public string? PlanId { get; set; }
-    public string? StartDate { get; set; }
-    public string? EndDate { get; set; }
+    public DateOnly? StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
     public string? Month { get; set; }
     public string? Year { get; set; }
     public string? Name { get; set; }
-    public string? CurrentBalance { get; set; }
-    public string? TotalIncome { get; set; }
-    public string? ExpensesPaid { get; set; }
-    public string? ExpensesUnpaid { get; set; }
-    public string? Surplus { get; set; }
-    public string? EndingBalance { get; set; }
+    public decimal? CurrentBalance { get; set; }
+    public decimal? TotalIncome { get; set; }
+    public decimal? ExpensesPaid { get; set; }
+    public decimal? ExpensesUnpaid { get; set; }
+    public decimal? Surplus { get; set; }
+    public decimal? EndingBalance { get; set; }
     public List<Plan>? Incomes { get; set; }
     public List<Plan>? Expenses { get; set; }
 }

@@ -1,11 +1,12 @@
 {
   "Version": 1,
-  "Hash": "C4yrQI1ticvFC7KyaqJC6LxuDjtnR6UyQ8VHdnI+7/M=",
+  "Hash": "MDCDbRgIV0Su+MXwY3U3E3NpbexDf2jbytt6Dw3vQw8=",
   "Source": "Luna.Api",
   "BasePath": "_content/Luna.Api",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }

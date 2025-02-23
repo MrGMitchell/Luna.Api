@@ -3,6 +3,7 @@ using Luna.Api.Services;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.Azure.Cosmos;
+using System.Net;
 
 public class CosmosDbService : ICosmosDbService
 {
@@ -20,7 +21,7 @@ public class CosmosDbService : ICosmosDbService
         // New instance of CosmosClient class using a connection string
         using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
 
-        Container container = client.GetContainer("Luna", "SpendingPlans");
+        Container container = client.GetContainer("Luna", "SpendingPlan");
 
         using FeedIterator<Plan> planfeed = container.GetItemQueryIterator<Plan>(
             queryText: $"SELECT * FROM SpendingPlans p WHERE p.Month = '{currMonth}' AND p.Year = '{currYear}'"
@@ -52,23 +53,115 @@ public class CosmosDbService : ICosmosDbService
                 .Select(uc => new UserCard {
                     PlanId = plan.PlanId,
                     Name = uc.Key.User,
-                    StartDate = startDate.ToString(),
-                    EndDate = endDate.ToString(),
-                    TotalIncome = uc.Where(t => t.Type == "income").Sum(a => int.Parse(a.Amount)).ToString(),
-                    ExpensesPaid = uc.Where(t => t.Type == "expense" && t.ExpenseStatus).Sum(a => int.Parse(a.Amount)).ToString(),
-                    ExpensesUnpaid = uc.Where(t => t.Type == "expense" && !t.ExpenseStatus).Sum(a => int.Parse(a.Amount)).ToString(),
-                    CurrentBalance = uc.Where(t => t.Type == "balance").Sum(a => int.Parse(a.Amount)).ToString(),
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    Month = currMonth,
+                    Year = currYear,
+                    TotalIncome = uc.Where(t => t.Type == "income").Sum(a => a.Amount),
+                    ExpensesPaid = uc.Where(t => t.Type == "expense" && t.ExpenseStatus).Sum(a => a.Amount),
+                    ExpensesUnpaid = uc.Where(t => t.Type == "expense" && !t.ExpenseStatus).Sum(a => a.Amount),
+                    CurrentBalance = uc.Where(t => t.Type == "balance").Sum(a => a.Amount),
                     Incomes = [.. uc.Where(t => t.Type == "income")],
                     Expenses = [.. uc.Where(t => t.Type == "expense")]
                 })];
 
-                foreach(UserCard card in userCards){                    
-                     card.EndingBalance = (int.Parse(card.CurrentBalance) - int.Parse(card.ExpensesUnpaid)).ToString();
-                     card.Surplus = (int.Parse(card.TotalIncome) - (int.Parse(card.ExpensesPaid) + int.Parse(card.ExpensesUnpaid))).ToString();
+                foreach (UserCard card in userCards)
+                {
+                    card.EndingBalance = card.CurrentBalance - card.ExpensesUnpaid;
+                    card.Surplus = card.TotalIncome - (card.ExpensesPaid + card.ExpensesUnpaid);
                 }
             }
         }
 
         return userCards;
+    }
+
+    public async Task<HttpStatusCode> CreateUserIncomeAsync(Income userIncome)
+    {
+        // Credential class for testing on a local machine or Azure services
+        TokenCredential credential = new DefaultAzureCredential();
+
+        // New instance of CosmosClient class using a connection string
+        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
+
+        Container container = client.GetContainer("Luna", "SpendingPlan");
+
+        // Create a new item
+        Income income = new()
+        {
+            id = Guid.NewGuid().ToString(),
+            PlanId = userIncome.PlanId,
+            User = userIncome.User,
+            Type = "income",
+            Amount = userIncome.Amount,
+            PayDate = userIncome.PayDate
+        };
+
+        // Create a new item
+        ItemResponse<Income> response = await container.CreateItemAsync<Income>(income);
+
+        return response.StatusCode;
+    }
+
+    public async Task<HttpStatusCode> CreateUserExpenseAsync(Expense userExpense)
+    {
+        // Credential class for testing on a local machine or Azure services
+        TokenCredential credential = new DefaultAzureCredential();
+
+        // New instance of CosmosClient class using a connection string
+        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
+
+        Container container = client.GetContainer("Luna", "SpendingPlan");
+
+        // Create a new item
+        Expense expense = new()
+        {
+            id = Guid.NewGuid().ToString(),
+            PlanId = userExpense.PlanId,
+            User = userExpense.User,
+            Type = "expense",
+            Amount = userExpense.Amount,
+            ExpenseDescription = userExpense.ExpenseDescription,
+            ExpenseDueDate = userExpense.ExpenseDueDate,
+            ExpenseStatus = false,
+        };
+
+        // Create a new item
+        ItemResponse<Expense> response = await container.CreateItemAsync<Expense>(expense);
+
+        return response.StatusCode;
+    }
+
+    public async Task<FootballQuestion> GetFootballQuestionAsync()
+    {
+        // Credential class for testing on a local machine or Azure services
+        TokenCredential credential = new DefaultAzureCredential();
+
+        // New instance of CosmosClient class using a connection string
+        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
+
+        Container container = client.GetContainer("FootballQuestions", "Questions");
+
+        using FeedIterator<FootballQuestion> questionfeed = container.GetItemQueryIterator<FootballQuestion>(
+            queryText: $"SELECT * FROM Questions q WHERE q.LastSent < DateTimeAdd(\"dd\",-30,GetCurrentDateTime())"
+        );
+
+        var question = new FootballQuestion();
+
+        while (questionfeed.HasMoreResults){
+            FeedResponse<FootballQuestion> response = await questionfeed.ReadNextAsync();
+
+            Random rnd = new Random();
+            
+            int r = rnd.Next(response.Count);
+
+            question = response.ToList<FootballQuestion>()[r];
+        }
+
+        question.LastSent = DateTime.Now;
+
+        await container.UpsertItemAsync<FootballQuestion>(question);
+
+        return question;
     }
 }
