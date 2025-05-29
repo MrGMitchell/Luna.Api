@@ -23,4 +23,10 @@ public class ExpenseController : ControllerBase
     {
         return await _cosmosDb.CreateUserExpenseAsync(expense);
     }
+
+    [HttpPut(Name = "UpdateUserExpense")]
+    public async Task<HttpStatusCode> UpdateUserExpense(List<Expense> expenses)
+    {
+        return await _cosmosDb.UpdateUserExpenseAsync(expenses);
+    }
 }

@@ -58,6 +58,7 @@ public class CosmosDbService : ICosmosDbService
                     Month = currMonth,
                     Year = currYear,
                     TotalIncome = uc.Where(t => t.Type == "income").Sum(a => a.Amount),
+                    TotalExpenses = uc.Where(t => t.Type == "expense").Sum(a => a.Amount),
                     ExpensesPaid = uc.Where(t => t.Type == "expense" && t.ExpenseStatus).Sum(a => a.Amount),
                     ExpensesUnpaid = uc.Where(t => t.Type == "expense" && !t.ExpenseStatus).Sum(a => a.Amount),
                     CurrentBalance = uc.Where(t => t.Type == "balance").Sum(a => a.Amount),
@@ -132,7 +133,36 @@ public class CosmosDbService : ICosmosDbService
         return response.StatusCode;
     }
 
-    public async Task<FootballQuestion> GetFootballQuestionAsync()
+    public async Task<HttpStatusCode> UpdateUserExpenseAsync(List<Expense> expenses)
+    {
+        // Credential class for testing on a local machine or Azure services
+        TokenCredential credential = new DefaultAzureCredential();
+
+        // New instance of CosmosClient class using a connection string
+        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
+
+        Container container = client.GetContainer("Luna", "SpendingPlan");
+
+        foreach (Expense expense in expenses)
+        {
+            ItemResponse<Expense> response = await container.PatchItemAsync<Expense>(
+            id: expense.id,
+            partitionKey: new PartitionKey(expense.PlanId),
+            patchOperations: [
+                PatchOperation.Replace("/ExpenseStatus", 1)
+                ]
+            );
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return response.StatusCode;
+            }
+        }
+
+        return HttpStatusCode.OK;
+    }
+
+    public async Task<FootballQuestion> GetDailyFootballQuestionAsync()
     {
         // Credential class for testing on a local machine or Azure services
         TokenCredential credential = new DefaultAzureCredential();
@@ -148,11 +178,12 @@ public class CosmosDbService : ICosmosDbService
 
         var question = new FootballQuestion();
 
-        while (questionfeed.HasMoreResults){
+        while (questionfeed.HasMoreResults)
+        {
             FeedResponse<FootballQuestion> response = await questionfeed.ReadNextAsync();
 
             Random rnd = new Random();
-            
+
             int r = rnd.Next(response.Count);
 
             question = response.ToList<FootballQuestion>()[r];
@@ -163,5 +194,81 @@ public class CosmosDbService : ICosmosDbService
         await container.UpsertItemAsync<FootballQuestion>(question);
 
         return question;
+    }
+
+    public async Task<List<FootballQuestion>> GetQuizFootballQuestionsAsync(int numberOfQuestions)
+    {
+        // New instance of CosmosClient class using a connection string
+        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
+
+        Container container = client.GetContainer("FootballQuestions", "Questions");
+
+        using FeedIterator<FootballQuestion> questionfeed = container.GetItemQueryIterator<FootballQuestion>(
+            queryText: $"SELECT * FROM Questions q"
+        );
+
+        var questions = new List<FootballQuestion>();
+
+        while (questionfeed.HasMoreResults)
+        {
+            FeedResponse<FootballQuestion> response = await questionfeed.ReadNextAsync();
+
+            Random rnd = new Random();
+
+            while (numberOfQuestions-- > 0)
+            {
+                questions.Add(response.ToList<FootballQuestion>()[rnd.Next(response.Count)]);
+            }
+        }
+
+        return questions;
+    }
+
+    public async Task<FootballQuestion> GetTodaysFootballQuestionAsync()
+    {
+        // Credential class for testing on a local machine or Azure services
+        TokenCredential credential = new DefaultAzureCredential();
+
+        // New instance of CosmosClient class using a connection string
+        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
+
+        Container container = client.GetContainer("FootballQuestions", "Questions");
+
+        using FeedIterator<FootballQuestion> questionfeed = container.GetItemQueryIterator<FootballQuestion>(
+            queryText: $"SELECT Top 1 * FROM c Order By c.LastSent DESC"
+        );
+
+        var question = new FootballQuestion();
+
+        while (questionfeed.HasMoreResults)
+        {
+            FeedResponse<FootballQuestion> response = await questionfeed.ReadNextAsync();
+
+            question = response.First<FootballQuestion>();
+        }
+
+        return question;
+    }
+
+    public async Task<List<Subscriber>> GetSubscribersAsync()
+    { 
+        // New instance of CosmosClient class using a connection string
+        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
+
+        Container container = client.GetContainer("FootballQuestions", "Emails");
+
+        using FeedIterator<Subscriber> subscriberfeed = container.GetItemQueryIterator<Subscriber>(
+            queryText: $"SELECT * FROM Questions s"
+        );
+
+        var subscribers = new List<Subscriber>();
+
+        while (subscriberfeed.HasMoreResults)
+        {
+            FeedResponse<Subscriber> response = await subscriberfeed.ReadNextAsync();
+            subscribers.AddRange([.. response]);
+        }
+
+        return subscribers;
     }
 }

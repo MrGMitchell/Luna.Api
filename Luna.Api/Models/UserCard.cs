@@ -10,6 +10,7 @@ public class UserCard
     public string? Name { get; set; }
     public decimal? CurrentBalance { get; set; }
     public decimal? TotalIncome { get; set; }
+    public decimal? TotalExpenses { get; set; }
     public decimal? ExpensesPaid { get; set; }
     public decimal? ExpensesUnpaid { get; set; }
     public decimal? Surplus { get; set; }

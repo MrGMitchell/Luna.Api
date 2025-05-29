@@ -11,5 +11,13 @@ public interface ICosmosDbService
 
     Task<HttpStatusCode> CreateUserExpenseAsync(Expense userExpense);
 
-    Task<FootballQuestion> GetFootballQuestionAsync();
+    Task<HttpStatusCode> UpdateUserExpenseAsync(List<Expense> Expenses);
+
+    Task<FootballQuestion> GetDailyFootballQuestionAsync();
+
+    Task<List<FootballQuestion>> GetQuizFootballQuestionsAsync(int numberOfQuestions);
+
+    Task<FootballQuestion> GetTodaysFootballQuestionAsync();
+
+    Task<List<Subscriber>> GetSubscribersAsync();
 }

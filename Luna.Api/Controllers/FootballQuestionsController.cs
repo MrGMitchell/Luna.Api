@@ -17,9 +17,27 @@ public class FootballQuestionController : ControllerBase
         _cosmosDb = cosmosDb;
     }
 
-    [HttpGet(Name = "GetFootballQuestion")]
-    public async Task<FootballQuestion> GetFootballQuestion()
+    [HttpGet("GetDailyFootballQuestion")]
+    public async Task<FootballQuestion> GetDailyFootballQuestion()
     {
-        return await _cosmosDb.GetFootballQuestionAsync();
+        return await _cosmosDb.GetDailyFootballQuestionAsync();
+    }
+
+    [HttpGet("GetQuizFootballQuestions")]
+    public async Task<List<FootballQuestion>> GetQuizFootballQuestions(int numberOfQuestions)
+    {
+        return await _cosmosDb.GetQuizFootballQuestionsAsync(numberOfQuestions);
+    }
+
+    [HttpGet("GetTodaysFootballQuestionAsync")]
+    public async Task<FootballQuestion> GetTodaysFootballQuestionAsync()
+    {
+        return await _cosmosDb.GetTodaysFootballQuestionAsync();
+    }
+
+    [HttpGet("GetSubscribersAsync")]
+    public async Task<List<Subscriber>> GetSubscribersAsync()
+    {
+        return await _cosmosDb.GetSubscribersAsync();
     }
 }
