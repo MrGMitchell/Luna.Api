@@ -40,4 +40,28 @@ public class FootballQuestionController : ControllerBase
     {
         return await _cosmosDb.GetSubscribersAsync();
     }
+    
+    [HttpPost("AddSubscriberAsync")]
+    public async Task<IActionResult> AddSubscriberAsync([FromBody] Subscriber subscriber)
+    {
+        if (subscriber == null || string.IsNullOrWhiteSpace(subscriber.Email))
+        {
+            return BadRequest("Invalid subscriber data.");
+        }
+
+        await _cosmosDb.AddSubscriberAsync(subscriber);
+        return Ok();
+    }
+
+    [HttpDelete("DeleteSubscriberAsync")]
+    public async Task<IActionResult> DeleteSubscriberAsync(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest("Email cannot be empty.");
+        }
+
+        await _cosmosDb.DeleteSubscriberAsync(email);
+        return Ok();
+    }
 }

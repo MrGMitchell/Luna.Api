@@ -1,12 +1,27 @@
 using Luna.Api.Models;
 using Luna.Api.Services;
-using Azure.Core;
-using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 using System.Net;
 
 public class CosmosDbService : ICosmosDbService
 {
+    private readonly CosmosClient _cosmosClient;
+    private readonly string _footballQuestionsDatabaseId;
+    private readonly string _footballQuestionsContainerId;
+    private readonly string _emailsContainerId;
+    private readonly string _lunaDatabaseId;
+    private readonly string _lunaContainerId;
+
+    public CosmosDbService(IConfiguration configuration, CosmosClient cosmosClient)
+    {
+        _cosmosClient = cosmosClient;
+        _footballQuestionsDatabaseId = configuration["FootballQuestionsDatabaseId"]!;
+        _footballQuestionsContainerId = configuration["FootballQuestionsContainerId"]!;
+        _emailsContainerId = configuration["EmailsContainerId"]!;
+        _lunaDatabaseId = configuration["LunaDatabaseId"]!;
+        _lunaContainerId = configuration["LunaContainerId"]!;
+    }
+
     public async Task<IEnumerable<UserCard>> GetUserCardsAsync()
     {
         var userCards = new List<UserCard>();
@@ -15,13 +30,7 @@ public class CosmosDbService : ICosmosDbService
         var startDate = DateOnly.Parse($"{currMonth} 1, {currYear}");
         var endDate = startDate.AddMonths(1).AddDays(-1);
 
-        // Credential class for testing on a local machine or Azure services
-        TokenCredential credential = new DefaultAzureCredential();
-
-        // New instance of CosmosClient class using a connection string
-        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
-
-        Container container = client.GetContainer("Luna", "SpendingPlan");
+        Container container = _cosmosClient.GetContainer(_lunaDatabaseId, _lunaContainerId);
 
         using FeedIterator<Plan> planfeed = container.GetItemQueryIterator<Plan>(
             queryText: $"SELECT * FROM SpendingPlans p WHERE p.Month = '{currMonth}' AND p.Year = '{currYear}'"
@@ -79,13 +88,7 @@ public class CosmosDbService : ICosmosDbService
 
     public async Task<HttpStatusCode> CreateUserIncomeAsync(Income userIncome)
     {
-        // Credential class for testing on a local machine or Azure services
-        TokenCredential credential = new DefaultAzureCredential();
-
-        // New instance of CosmosClient class using a connection string
-        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
-
-        Container container = client.GetContainer("Luna", "SpendingPlan");
+        Container container = _cosmosClient.GetContainer(_lunaDatabaseId, _lunaContainerId);
 
         // Create a new item
         Income income = new()
@@ -106,13 +109,7 @@ public class CosmosDbService : ICosmosDbService
 
     public async Task<HttpStatusCode> CreateUserExpenseAsync(Expense userExpense)
     {
-        // Credential class for testing on a local machine or Azure services
-        TokenCredential credential = new DefaultAzureCredential();
-
-        // New instance of CosmosClient class using a connection string
-        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
-
-        Container container = client.GetContainer("Luna", "SpendingPlan");
+        Container container = _cosmosClient.GetContainer(_lunaDatabaseId, _lunaContainerId);
 
         // Create a new item
         Expense expense = new()
@@ -135,13 +132,7 @@ public class CosmosDbService : ICosmosDbService
 
     public async Task<HttpStatusCode> UpdateUserExpenseAsync(List<Expense> expenses)
     {
-        // Credential class for testing on a local machine or Azure services
-        TokenCredential credential = new DefaultAzureCredential();
-
-        // New instance of CosmosClient class using a connection string
-        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
-
-        Container container = client.GetContainer("Luna", "SpendingPlan");
+        Container container = _cosmosClient.GetContainer(_lunaDatabaseId, _lunaContainerId);
 
         foreach (Expense expense in expenses)
         {
@@ -164,13 +155,7 @@ public class CosmosDbService : ICosmosDbService
 
     public async Task<FootballQuestion> GetDailyFootballQuestionAsync()
     {
-        // Credential class for testing on a local machine or Azure services
-        TokenCredential credential = new DefaultAzureCredential();
-
-        // New instance of CosmosClient class using a connection string
-        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
-
-        Container container = client.GetContainer("FootballQuestions", "Questions");
+        Container container = _cosmosClient.GetContainer(_footballQuestionsDatabaseId, _footballQuestionsContainerId);
 
         using FeedIterator<FootballQuestion> questionfeed = container.GetItemQueryIterator<FootballQuestion>(
             queryText: $"SELECT * FROM Questions q WHERE q.LastSent < DateTimeAdd(\"dd\",-30,GetCurrentDateTime())"
@@ -198,10 +183,7 @@ public class CosmosDbService : ICosmosDbService
 
     public async Task<List<FootballQuestion>> GetQuizFootballQuestionsAsync(int numberOfQuestions)
     {
-        // New instance of CosmosClient class using a connection string
-        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
-
-        Container container = client.GetContainer("FootballQuestions", "Questions");
+        Container container = _cosmosClient.GetContainer(_footballQuestionsDatabaseId, _footballQuestionsContainerId);
 
         using FeedIterator<FootballQuestion> questionfeed = container.GetItemQueryIterator<FootballQuestion>(
             queryText: $"SELECT * FROM Questions q"
@@ -226,13 +208,7 @@ public class CosmosDbService : ICosmosDbService
 
     public async Task<FootballQuestion> GetTodaysFootballQuestionAsync()
     {
-        // Credential class for testing on a local machine or Azure services
-        TokenCredential credential = new DefaultAzureCredential();
-
-        // New instance of CosmosClient class using a connection string
-        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
-
-        Container container = client.GetContainer("FootballQuestions", "Questions");
+        Container container = _cosmosClient.GetContainer(_footballQuestionsDatabaseId, _footballQuestionsContainerId);
 
         using FeedIterator<FootballQuestion> questionfeed = container.GetItemQueryIterator<FootballQuestion>(
             queryText: $"SELECT Top 1 * FROM c Order By c.LastSent DESC"
@@ -251,11 +227,8 @@ public class CosmosDbService : ICosmosDbService
     }
 
     public async Task<List<Subscriber>> GetSubscribersAsync()
-    { 
-        // New instance of CosmosClient class using a connection string
-        using CosmosClient client = new("https://luna-cosmos-db.documents.azure.com:443/", "JtGG09InqTX71w0Wz9AS8VujJI1okCf6cR7tNTM4KYwX679soJNzSdOCSzIV36FwdVtrn9VFsJteACDbA53ZlQ==");
-
-        Container container = client.GetContainer("FootballQuestions", "Emails");
+    {
+        Container container = _cosmosClient.GetContainer(_footballQuestionsDatabaseId, _emailsContainerId);
 
         using FeedIterator<Subscriber> subscriberfeed = container.GetItemQueryIterator<Subscriber>(
             queryText: $"SELECT * FROM Questions s"
@@ -270,5 +243,60 @@ public class CosmosDbService : ICosmosDbService
         }
 
         return subscribers;
+    }
+
+    public async Task<bool> AddSubscriberAsync(Subscriber subscriber)
+    {
+        try
+        {
+            Database database = _cosmosClient.GetDatabase(_footballQuestionsDatabaseId);
+            Container container = database.GetContainer(_emailsContainerId);
+
+            Random rnd = new();
+            int r = rnd.Next(short.MaxValue);
+            var newSubscriber = new Subscriber { id = Guid.NewGuid().ToString(), EmailId = r.ToString(), Email = subscriber.Email, SubscriptionDate = DateTime.UtcNow };
+            var response = await container.CreateItemAsync(newSubscriber);
+            return response.StatusCode == HttpStatusCode.Created;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error saving to Cosmos DB: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteSubscriberAsync(string email)
+    {
+        try
+        {
+            Database database = _cosmosClient.GetDatabase(_footballQuestionsDatabaseId);
+            Container container = database.GetContainer(_emailsContainerId);
+
+            // Query to find the item by email
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.Email = @Email")
+                .WithParameter("@Email", email);
+
+            var iterator = container.GetItemQueryIterator<Subscriber>(query);
+
+            if (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync();
+                if (response.Count == 0)
+                {
+                    Console.Error.WriteLine($"No subscriber found with email: {email}");
+                    return false;
+                }
+                foreach (var item in response)
+                {
+                    await container.DeleteItemAsync<Subscriber>(item.id, new PartitionKey(item.EmailId));
+                    return true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting from Cosmos DB: {ex.Message}");
+        }
+        return await Task.FromResult(true);
     }
 }

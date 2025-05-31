@@ -52,6 +52,10 @@
               "target": "Package",
               "version": "[2.1.35, )"
             },
+            "Microsoft.Azure.AppConfiguration.AspNetCore": {
+              "target": "Package",
+              "version": "[8.2.0, )"
+            },
             "Microsoft.Azure.Cosmos": {
               "target": "Package",
               "version": "[3.46.0, )"

@@ -20,4 +20,8 @@ public interface ICosmosDbService
     Task<FootballQuestion> GetTodaysFootballQuestionAsync();
 
     Task<List<Subscriber>> GetSubscribersAsync();
+
+    Task<bool> AddSubscriberAsync(Subscriber subscriber);
+
+    Task<bool> DeleteSubscriberAsync(string email);
 }
