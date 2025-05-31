@@ -24,11 +24,9 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
-        working-directory: ./Luna.Api
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        working-directory: ./Luna.Api
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
@@ -43,13 +41,23 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
       
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4E81977F15FA49A3AC5A42E3DD081C5B }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_2F4269748BF0479CAC34159F20219F13 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D1EC3EF4C5414F0A8F8CD7C177B20A5C }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -57,4 +65,4 @@ jobs:
           app-name: 'Luna-Api'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_107E6E578E7B4FFD938EDB00F5E9FE43 }}
+          
