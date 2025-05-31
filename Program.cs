@@ -46,15 +46,8 @@ builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
 
 var app = builder.Build();
 
-if (builder.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication1 v1"));
-}
-
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication1 v1"));
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthorization();
 
