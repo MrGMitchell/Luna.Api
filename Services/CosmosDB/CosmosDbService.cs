@@ -176,7 +176,7 @@ public class CosmosDbService : ICosmosDbService
 
         question.LastSent = DateTime.Now;
 
-        await container.UpsertItemAsync<FootballQuestion>(question);
+        await container.UpsertItemAsync<FootballQuestion>(question, new PartitionKey(question.QuestionId));
 
         return question;
     }
