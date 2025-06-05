@@ -29,6 +29,12 @@ public class FootballQuestionController : ControllerBase
         return await _cosmosDb.GetQuizFootballQuestionsAsync(numberOfQuestions);
     }
 
+    [HttpGet("GetQuizQuestions")]
+    public async Task<List<QuizQuestion>> GetQuizQuestions()
+    {
+        return await _cosmosDb.GetQuizQuestionsAsync();
+    }
+
     [HttpGet("GetTodaysFootballQuestionAsync")]
     public async Task<FootballQuestion> GetTodaysFootballQuestionAsync()
     {

@@ -299,4 +299,42 @@ public class CosmosDbService : ICosmosDbService
         }
         return await Task.FromResult(true);
     }
+
+    public async Task<List<QuizQuestion>> GetQuizQuestionsAsync()
+    {
+        Container container = _cosmosClient.GetContainer(_footballQuestionsDatabaseId, _footballQuestionsContainerId);
+
+        using FeedIterator<QuizQuestion> questionfeed = container.GetItemQueryIterator<QuizQuestion>(
+            queryText: $"SELECT * FROM Questions q Where q.CorrectAnswer <> ''"
+        );
+
+        var questions = new List<QuizQuestion>();
+
+        var numberOfQuestions = 10;
+
+        var questionsUsed = new List<int>();
+
+        while (questionfeed.HasMoreResults)
+        {
+            FeedResponse<QuizQuestion> response = await questionfeed.ReadNextAsync();
+
+            Random rnd = new();
+
+            while (numberOfQuestions-- > 0)
+            {
+                var questionIndex = rnd.Next(response.Count);
+
+                while (questionsUsed.Contains(questionIndex))
+                {
+                    questionIndex = rnd.Next(response.Count);
+                }
+
+                questionsUsed.Add(questionIndex);
+
+                questions.Add(response.ToList<QuizQuestion>()[questionIndex]);
+            }
+        }
+
+        return questions;
+    }
 }
