@@ -17,6 +17,8 @@ public interface ICosmosDbService
 
     Task<List<FootballQuestion>> GetQuizFootballQuestionsAsync(int numberOfQuestions);
 
+    Task<List<QuizQuestion>> GetQuizQuestionsAsync();
+
     Task<FootballQuestion> GetTodaysFootballQuestionAsync();
 
     Task<List<Subscriber>> GetSubscribersAsync();
