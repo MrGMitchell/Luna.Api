@@ -23,4 +23,10 @@ public class IncomeController : ControllerBase
     {
         return await _cosmosDb.CreateUserIncomeAsync(income);
     }
+
+    [HttpPut(Name = "UpdateUserIncome")]
+    public async Task<HttpStatusCode> UpdateUserIncome(List<Income> incomes)
+    {
+        return await _cosmosDb.UpdateUserIncomeAsync(incomes);
+    }   
 }
