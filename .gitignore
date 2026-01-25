@@ -1,0 +1,49 @@
+# Binaries
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+
+# IDE files
+.vs/
+.idea/
+
+# NuGet packages
+packages/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# OS generated files
+Thumbs.db
+.DS_Store
+
+# .NET Core / .NET 9
+.dotnet/
+
+# Test results
+TestResults/
+
+# Coverage reports
+*.coverage
+*.coveragexml
+
+# Build artifacts
+*.nupkg
+*.snupkg
+
+# Runtime configuration
+appsettings.Development.json
+appsettings.Local.json
+
+# Database files
+*.db
+*.sqlite
+
+# Secrets
+secrets.json
