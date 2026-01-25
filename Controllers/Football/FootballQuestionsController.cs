@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Luna.Api.Services;
+using Luna.Api.Services.CosmosDB;
 using Luna.Api.Models;
 
 namespace Luna.Api.Controllers;

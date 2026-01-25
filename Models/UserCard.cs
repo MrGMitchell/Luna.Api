@@ -2,6 +2,7 @@ namespace Luna.Api.Models;
 
 public class UserCard
 {
+    public string? id { get; set; }
     public string? PlanId { get; set; }
     public DateOnly? StartDate { get; set; }
     public DateOnly? EndDate { get; set; }

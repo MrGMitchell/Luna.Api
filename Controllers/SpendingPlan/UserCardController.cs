@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Luna.Api.Services;
+using Luna.Api.Services.CosmosDB;
 using Luna.Api.Models;
 
 namespace Luna.Api.Controllers;
@@ -17,9 +17,27 @@ public class UserCardController : ControllerBase
         _cosmosDb = cosmosDb;
     }
 
-    [HttpGet(Name = "GetUserCards")]
+    [HttpGet("GetUserCards")]
     public async Task<IEnumerable<UserCard>> Get()
     {
         return await _cosmosDb.GetUserCardsAsync();
+    }
+
+    [HttpPut("UpdateCurrentBalance")]
+    public async Task<IActionResult> UpdateCurrentBalanceAsync(UserCard userCard)
+    {
+        var result = await _cosmosDb.UpdateCurrentBalanceAsync(userCard);
+        if (result == System.Net.HttpStatusCode.OK)
+        {
+            return Ok();
+        }
+        else if (result == System.Net.HttpStatusCode.NotFound)
+        {
+            return NotFound();
+        }
+        else
+        {
+            return StatusCode((int)result);
+        }
     }
 }

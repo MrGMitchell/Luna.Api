@@ -1,6 +1,6 @@
 using System.Net;
 using Luna.Api.Models;
-using Luna.Api.Services;
+using Luna.Api.Services.CosmosDB;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Luna.Api.Controllers;
@@ -18,13 +18,13 @@ public class IncomeController : ControllerBase
         _cosmosDb = cosmosDb;
     }
     
-    [HttpPost(Name = "CreateUserIncome")]
+    [HttpPost("CreateUserIncome")]
     public async Task<HttpStatusCode> AddUserIncome(Income income)
     {
         return await _cosmosDb.CreateUserIncomeAsync(income);
     }
 
-    [HttpPut(Name = "UpdateUserIncome")]
+    [HttpPut("UpdateUserIncome")]
     public async Task<HttpStatusCode> UpdateUserIncome(List<Income> incomes)
     {
         return await _cosmosDb.UpdateUserIncomeAsync(incomes);

@@ -1,7 +1,7 @@
 using System.Net;
 using Luna.Api.Models;
 
-namespace Luna.Api.Services;
+namespace Luna.Api.Services.CosmosDB;
 
 public interface ICosmosDbService
 {
@@ -36,4 +36,6 @@ public interface ICosmosDbService
     Task<HttpStatusCode> UpdateBalancesFromPreviousMonthAsync(string previousPlanId, string targetPlanId);
 
     Task<HttpStatusCode>CreateSpendingPlanTemplateAsync();
+
+    Task<HttpStatusCode> UpdateCurrentBalanceAsync(UserCard userCard);
 }

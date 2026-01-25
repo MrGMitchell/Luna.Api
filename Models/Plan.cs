@@ -2,7 +2,7 @@ namespace Luna.Api.Models;
 
 public class Plan
 {
-    public string? Id { get; set; }
+    public string? id { get; set; }
     public string? PlanId { get; set; }
     public string? Month { get; set; }
     public string? Year { get; set; }

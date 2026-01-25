@@ -1,5 +1,5 @@
 using System.Net;
-using Luna.Api.Services;
+using Luna.Api.Services.CosmosDB;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Luna.Api.Controllers;
@@ -17,7 +17,7 @@ public class SpendingPlanTemplateController : ControllerBase
         _cosmosDb = cosmosDb;
     }
     
-    [HttpPost(Name = "CreateSpendingPlanTemplate")]
+    [HttpPost("CreateSpendingPlanTemplate")]
     public async Task<HttpStatusCode> CreateSpendingPlanTemplate()
     {
         return await _cosmosDb.CreateSpendingPlanTemplateAsync();

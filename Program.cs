@@ -1,5 +1,7 @@
 using Azure.Identity;
-using Luna.Api.Services;
+using Luna.Api.Services.CosmosDB;
+using Luna.Api.Services.SpendingPlan;
+using Luna.Api.Services.Football;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 
@@ -24,6 +26,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<ICosmosDbService, CosmosDbService>();
+builder.Services.AddSingleton<ISpendingPlanService, SpendingPlanService>();
+builder.Services.AddSingleton<IFootballQuestionService, FootballQuestionService>();
+builder.Services.AddSingleton<ISubscriberService, SubscriberService>();
 
 builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
 {
