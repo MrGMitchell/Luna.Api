@@ -38,4 +38,10 @@ public interface ICosmosDbService
     Task<HttpStatusCode>CreateSpendingPlanTemplateAsync();
 
     Task<HttpStatusCode> UpdateCurrentBalanceAsync(UserCard userCard);
+
+    Task<HttpStatusCode> SaveQuizAnswersAsync(QuizAnswer quizAnswer);
+
+    Task<UserReportSummary> GetUserQuizSummaryAsync(string userId);
+
+    Task<List<QuizAnswer>> GetUserQuizHistoryAsync(string userId);
 }

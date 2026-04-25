@@ -6,5 +6,7 @@ public class FootballQuestion
     public string? QuestionId { get; set; }
     public string? Question { get; set; }
     public string? Ruling { get; set; }
+    public string? RuleNumber { get; set; }
+    public List<string>? Categories { get; set; }
     public DateTime? LastSent { get; set; }
 }

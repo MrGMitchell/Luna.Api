@@ -102,4 +102,19 @@ public class CosmosDbService : ICosmosDbService
     {
         return await _spendingPlanService.UpdateCurrentBalanceAsync(userCard);
     }
+
+    public async Task<HttpStatusCode> SaveQuizAnswersAsync(QuizAnswer quizAnswer)
+    {
+        return await _footballQuestionService.SaveQuizAnswersAsync(quizAnswer);
+    }
+
+    public async Task<UserReportSummary> GetUserQuizSummaryAsync(string userId)
+    {
+        return await _footballQuestionService.GetUserQuizSummaryAsync(userId);
+    }
+
+    public async Task<List<QuizAnswer>> GetUserQuizHistoryAsync(string userId)
+    {
+        return await _footballQuestionService.GetUserQuizHistoryAsync(userId);
+    }
 }
