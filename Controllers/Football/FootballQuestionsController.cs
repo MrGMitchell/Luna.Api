@@ -70,4 +70,64 @@ public class FootballQuestionController : ControllerBase
         await _cosmosDb.DeleteSubscriberAsync(email);
         return Ok();
     }
+
+    [HttpPost("SaveQuizAnswersAsync")]
+    public async Task<IActionResult> SaveQuizAnswersAsync([FromBody] QuizAnswer quizAnswer)
+    {
+        if (quizAnswer == null || string.IsNullOrWhiteSpace(quizAnswer.id) || string.IsNullOrWhiteSpace(quizAnswer.UserId))
+        {
+            return BadRequest("Invalid quiz answer data. Id and UserId are required.");
+        }
+
+        if (quizAnswer.Answers == null || quizAnswer.Answers.Count == 0)
+        {
+            return BadRequest("Quiz answer must contain at least one answer.");
+        }
+
+        var statusCode = await _cosmosDb.SaveQuizAnswersAsync(quizAnswer);
+        
+        return statusCode == System.Net.HttpStatusCode.OK || statusCode == System.Net.HttpStatusCode.Created
+            ? Ok($"Quiz answers saved successfully.")
+            : StatusCode((int)statusCode, "Failed to save quiz answers.");
+    }
+
+    [HttpGet("user/{userId}/summary")]
+    public async Task<IActionResult> GetUserQuizSummary(string userId)
+    {
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return BadRequest("UserId cannot be empty.");
+        }
+
+        try
+        {
+            var summary = await _cosmosDb.GetUserQuizSummaryAsync(userId);
+            return Ok(summary);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error retrieving quiz summary for user {userId}: {ex.Message}");
+            return StatusCode(500, "An error occurred while retrieving quiz summary.");
+        }
+    }
+
+    [HttpGet("user/{userId}/history")]
+    public async Task<IActionResult> GetUserQuizHistory(string userId)
+    {
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return BadRequest("UserId cannot be empty.");
+        }
+
+        try
+        {
+            var history = await _cosmosDb.GetUserQuizHistoryAsync(userId);
+            return Ok(history);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error retrieving quiz history for user {userId}: {ex.Message}");
+            return StatusCode(500, "An error occurred while retrieving quiz history.");
+        }
+    }
 }

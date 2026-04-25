@@ -103,6 +103,10 @@ public class SpendingPlanService : ISpendingPlanService
         // Create a new item
         ItemResponse<Income> response = await container.CreateItemAsync<Income>(income);
 
+        DateTime nextPlanId = DateTime.ParseExact(income.PlanId, "MMyyyy", null).AddMonths(1);
+
+        await UpdateBalancesFromPreviousMonthAsync(income.PlanId, nextPlanId.ToString("MMyyyy"));
+
         return response.StatusCode;
     }
 
@@ -127,7 +131,35 @@ public class SpendingPlanService : ISpendingPlanService
             }
         }
 
+        DateTime nextPlanId = DateTime.ParseExact(incomes.First().PlanId, "MMyyyy", null).AddMonths(1);
+
+        await UpdateBalancesFromPreviousMonthAsync(incomes.First().PlanId, nextPlanId.ToString("MMyyyy"));
+
         return HttpStatusCode.OK;
+    }
+
+    public async Task<HttpStatusCode> DeleteUserIncomeAsync(List<Income> incomes)
+    {
+        try
+        {
+            Container container = _cosmosClient.GetContainer(_lunaDatabaseId, _lunaContainerId);
+
+            foreach (var income in incomes)
+            {
+                await container.DeleteItemAsync<Income>(income.id, new PartitionKey(income.PlanId));
+            }
+
+            DateTime nextPlanId = DateTime.ParseExact(incomes.First().PlanId, "MMyyyy", null).AddMonths(1);
+
+            await UpdateBalancesFromPreviousMonthAsync(incomes.First().PlanId, nextPlanId.ToString("MMyyyy"));
+
+            return HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting from Cosmos DB: {ex.Message}");
+            return HttpStatusCode.InternalServerError;
+        }
     }
 
     public async Task<HttpStatusCode> CreateUserExpenseAsync(Expense userExpense)
@@ -150,6 +182,10 @@ public class SpendingPlanService : ISpendingPlanService
         // Create a new item
         ItemResponse<Expense> response = await container.CreateItemAsync<Expense>(expense);
 
+        DateTime nextPlanId = DateTime.ParseExact(expense.PlanId, "MMyyyy", null).AddMonths(1);
+
+        await UpdateBalancesFromPreviousMonthAsync(expense.PlanId, nextPlanId.ToString("MMyyyy"));
+
         return response.StatusCode;
     }
 
@@ -170,17 +206,41 @@ public class SpendingPlanService : ISpendingPlanService
                 ]
             );
 
-            DateTime nextPlanId = DateTime.ParseExact(expense.PlanId, "MMyyyy", null).AddMonths(1);
-
-            await UpdateBalancesFromPreviousMonthAsync(expense.PlanId, nextPlanId.ToString("MMyyyy"));
-
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 return response.StatusCode;
             }
         }
 
+        DateTime nextPlanId = DateTime.ParseExact(expenses.First().PlanId, "MMyyyy", null).AddMonths(1);
+
+        await UpdateBalancesFromPreviousMonthAsync(expenses.First().PlanId, nextPlanId.ToString("MMyyyy"));
+
         return HttpStatusCode.OK;
+    }
+
+    public async Task<HttpStatusCode> DeleteUserExpenseAsync(List<Expense> expenses)
+    {
+        try
+        {
+            Container container = _cosmosClient.GetContainer(_lunaDatabaseId, _lunaContainerId);
+
+            foreach (var expense in expenses)
+            {
+                await container.DeleteItemAsync<Expense>(expense.id, new PartitionKey(expense.PlanId));
+            }
+
+            DateTime nextPlanId = DateTime.ParseExact(expenses.First().PlanId, "MMyyyy", null).AddMonths(1);
+
+            await UpdateBalancesFromPreviousMonthAsync(expenses.First().PlanId, nextPlanId.ToString("MMyyyy"));
+
+            return HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting from Cosmos DB: {ex.Message}");
+            return HttpStatusCode.InternalServerError;
+        }
     }
 
     public async Task<HttpStatusCode> CreateSpendingPlanTemplateAsync()
@@ -382,6 +442,11 @@ public class SpendingPlanService : ISpendingPlanService
             balances.AddRange(resp);
         }
 
+        if(balances.Count == 0)
+        {
+            return HttpStatusCode.OK;
+        }
+
         var expenses = new List<Expense>();
         using FeedIterator<Expense> expenseFeed = container.GetItemQueryIterator<Expense>(
             new QueryDefinition("SELECT * FROM c WHERE c.PlanId = @planId AND c.Type = 'expense'")
@@ -443,45 +508,11 @@ public class SpendingPlanService : ISpendingPlanService
             }
         }
 
+        DateTime nextPlanId = DateTime.ParseExact(targetPlanId, "MMyyyy", null).AddMonths(1);
+
+        await UpdateBalancesFromPreviousMonthAsync(targetPlanId, nextPlanId.ToString("MMyyyy"));
+
         return HttpStatusCode.OK;
-    }
-
-    public async Task<HttpStatusCode> DeleteUserIncomeAsync(List<Income> incomes)
-    {
-        try
-        {
-            Container container = _cosmosClient.GetContainer(_lunaDatabaseId, _lunaContainerId);
-
-            foreach (var income in incomes)
-            {
-                await container.DeleteItemAsync<Income>(income.id, new PartitionKey(income.PlanId));
-            }
-            return HttpStatusCode.OK;
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Error deleting from Cosmos DB: {ex.Message}");
-            return HttpStatusCode.InternalServerError;
-        }
-    }
-
-    public async Task<HttpStatusCode> DeleteUserExpenseAsync(List<Expense> Expenses)
-    {
-        try
-        {
-            Container container = _cosmosClient.GetContainer(_lunaDatabaseId, _lunaContainerId);
-
-            foreach (var expense in Expenses)
-            {
-                await container.DeleteItemAsync<Expense>(expense.id, new PartitionKey(expense.PlanId));
-            }
-            return HttpStatusCode.OK;
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Error deleting from Cosmos DB: {ex.Message}");
-            return HttpStatusCode.InternalServerError;
-        }
     }
 
     public async Task<HttpStatusCode> UpdateCurrentBalanceAsync(UserCard userCard)

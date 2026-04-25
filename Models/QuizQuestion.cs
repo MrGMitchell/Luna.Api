@@ -13,6 +13,12 @@ public class QuizQuestion
     [property: JsonPropertyName("Question")]
     public string? Question { get; set; }
 
+    [property: JsonPropertyName("Categories")]
+    public List<string>? Categories { get; set; }
+
+    [property: JsonPropertyName("RuleNumber")]
+    public string? RuleNumber { get; set; }
+
     [property: JsonPropertyName("CorrectAnswer")]
     public string? CorrectAnswer { get; set; }
 
