@@ -29,6 +29,7 @@ builder.Services.AddSingleton<ICosmosDbService, CosmosDbService>();
 builder.Services.AddSingleton<ISpendingPlanService, SpendingPlanService>();
 builder.Services.AddSingleton<IFootballQuestionService, FootballQuestionService>();
 builder.Services.AddSingleton<ISubscriberService, SubscriberService>();
+builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
 {

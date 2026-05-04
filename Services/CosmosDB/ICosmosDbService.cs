@@ -5,6 +5,8 @@ namespace Luna.Api.Services.CosmosDB;
 
 public interface ICosmosDbService
 {
+    Task<UserAuthInfo> GetCurrentUserAsync(string userId);
+
     Task<IEnumerable<UserCard>> GetUserCardsAsync();
 
     Task<HttpStatusCode> CreateUserIncomeAsync(Income userIncome);
@@ -44,4 +46,8 @@ public interface ICosmosDbService
     Task<UserReportSummary> GetUserQuizSummaryAsync(string userId);
 
     Task<List<QuizAnswer>> GetUserQuizHistoryAsync(string userId);
+
+    Task<List<UserAuthInfo>> GetAllUsersAsync();
+
+    Task<HttpStatusCode> AssignRoleToUserAsync(UserAuthInfo userAuthInfo);
 }

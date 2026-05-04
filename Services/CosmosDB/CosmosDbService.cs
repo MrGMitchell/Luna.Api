@@ -10,12 +10,24 @@ public class CosmosDbService : ICosmosDbService
     private readonly ISpendingPlanService _spendingPlanService;
     private readonly IFootballQuestionService _footballQuestionService;
     private readonly ISubscriberService _subscriberService;
+    private readonly IAuthenticationService _authenticationService;
 
-    public CosmosDbService(ISpendingPlanService spendingPlanService, IFootballQuestionService footballQuestionService, ISubscriberService subscriberService)
+    public CosmosDbService(ISpendingPlanService spendingPlanService, IFootballQuestionService footballQuestionService, ISubscriberService subscriberService, IAuthenticationService authenticationService)
     {
         _spendingPlanService = spendingPlanService;
         _footballQuestionService = footballQuestionService;
         _subscriberService = subscriberService;
+        _authenticationService = authenticationService;
+    }
+
+    public async Task<UserAuthInfo> GetCurrentUserAsync(string userId)
+    {
+        return await _authenticationService.GetCurrentUserAsync(userId);
+    }
+
+    public async Task<List<UserAuthInfo>> GetAllUsersAsync()
+    {
+        return await _authenticationService.GetAllUsersAsync();
     }
 
     public async Task<IEnumerable<UserCard>> GetUserCardsAsync()
@@ -116,5 +128,10 @@ public class CosmosDbService : ICosmosDbService
     public async Task<List<QuizAnswer>> GetUserQuizHistoryAsync(string userId)
     {
         return await _footballQuestionService.GetUserQuizHistoryAsync(userId);
+    }
+
+    public async Task<HttpStatusCode> AssignRoleToUserAsync(UserAuthInfo userAuthInfo)
+    {
+        return await _authenticationService.AssignRoleToUserAsync(userAuthInfo);
     }
 }
