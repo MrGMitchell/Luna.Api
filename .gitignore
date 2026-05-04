@@ -1,43 +1,38 @@
-# Binaries
+# Build artifacts
 bin/
 obj/
+
+# Visual Studio / IDE files
+.vs/
+.vscode/
+.idea/
 
 # User-specific files
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
 
-# IDE files
-.vs/
-.idea/
-
-# NuGet packages
+# NuGet
 packages/
+*.nupkg
+*.snupkg
 
-# Logs
+# .NET SDK
+.dotnet/
+
+# Test results
+TestResults/
+
+# Logs and temp files
 *.log
-
-# Temporary files
 *.tmp
 
 # OS generated files
 Thumbs.db
 .DS_Store
 
-# .NET Core / .NET 9
-.dotnet/
-
-# Test results
-TestResults/
-
-# Coverage reports
-*.coverage
-*.coveragexml
-
-# Build artifacts
-*.nupkg
-*.snupkg
-
-# Runtime configuration
+# Runtime/local config
 appsettings.Development.json
 appsettings.Local.json
 
